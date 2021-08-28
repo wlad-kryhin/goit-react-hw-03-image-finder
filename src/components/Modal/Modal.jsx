@@ -1,8 +1,8 @@
-export default function Modal({ image }) {
+export default function Modal({ imageId, onClose, find }) {
   return (
-    <div className="Overlay">
-      <div className="Modal">
-        <img src="image" alt="" />
+    <div className="Overlay" onClose={onClose}>
+      <div className="Modal" imageId={imageId}>
+        <img src={find.largeImageURL} alt="" />
       </div>
     </div>
   );
