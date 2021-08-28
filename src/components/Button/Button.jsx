@@ -1,3 +1,7 @@
-export default function Button() {
-  return <button type="button">Load more</button>;
+export default function Button({ onClick }) {
+  return (
+    <button type="button" onClick={() => onClick}>
+      Load more
+    </button>
+  );
 }
