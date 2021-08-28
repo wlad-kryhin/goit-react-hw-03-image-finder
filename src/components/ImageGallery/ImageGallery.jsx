@@ -15,8 +15,11 @@ export default class ImageGallery extends Component {
       return;
     }
     this.setState({ status: 'pending' });
+    this.searchImages();
+  }
+  searchImages = () => {
     fetch(
-      `https://pixabay.com/api/?q=${this.props.imageName}&page=${this.page}&key=${KEY}&image_type=photo&orientation=horizontal&per_page=12`,
+      `https://pixabay.com/api/?q=${this.props.imageName}&page=${this.state.page}&key=${KEY}&image_type=photo&orientation=horizontal&per_page=12`,
     )
       .then(response => {
         if (response.ok) {
@@ -27,24 +30,17 @@ export default class ImageGallery extends Component {
           new Error(`нету такой дичи с именем ${this.props.imageName}`),
         );
       })
-      .then(data => this.setState({ images: data.hits, status: 'resolved' }))
+      .then(data =>{
+        return this.setState(prevState => ({ 
+            images: [...prevState.images, ...data.hits],
+            status: 'resolved'
+          })),
+        })
       .catch(error => this.setState({ status: 'reject' }));
-  }
-  // loadMore = () => {
-  //   fetch(
-  //     `https://pixabay.com/api/?q=${this.props.imageName}&page=${
-  //       this.page + 1
-  //     }&key=${KEY}&image_type=photo&orientation=horizontal&per_page=12`,
-  //   )
-  //     .then(response => response.json())
-  //     .then(data => {
-  //       this.setState(prevState => ({
-  //         images: [...prevState.images, ...data.hits],
-  //         page: (prevState.page += 1),
-  //       }));
-  //       console.log(this.state.images);
-  //     });
-  // };
+  };
+  loadMore = () => {
+    this.setState({ page: this.state.page + 1 });
+  };
 
   render() {
     const { images, status } = this.state;
@@ -64,7 +60,7 @@ export default class ImageGallery extends Component {
       return (
         <ul className="ImageGallery">
           <ImageGalleryItem images={images} />
-          <Button />
+          <Button onClick={this.loadMore} />
         </ul>
       );
     }

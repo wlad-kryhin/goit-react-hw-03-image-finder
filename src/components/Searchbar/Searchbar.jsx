@@ -13,7 +13,7 @@ export default class Searchbar extends Component {
       return;
     }
     this.props.onSubmit(this.state.image);
-    this.setState({ image: '' });
+    e.currentTarget.reset();
   };
   render() {
     return (
