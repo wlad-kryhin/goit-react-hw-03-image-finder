@@ -31,6 +31,9 @@ export default class Searchbar extends Component {
             placeholder="Search images and photos"
           />
         </form>
+        {this.state.image === '' && (
+          <p className="text"> Please, enter something in the search bar</p>
+        )}
       </header>
     );
   }

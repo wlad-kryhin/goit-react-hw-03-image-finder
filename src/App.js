@@ -5,6 +5,7 @@ import ImageGallery from './components/ImageGallery/ImageGallery';
 import Button from './components/Button/Button';
 import Loader from 'react-loader-spinner';
 import Modal from './components/Modal/Modal';
+import PropTypes from 'prop-types';
 const KEY = '22313175-89def84c9551dc3c20db3bc15';
 
 class App extends Component {
@@ -14,8 +15,10 @@ class App extends Component {
     page: 1,
     isLoading: false,
     error: '',
-    bigImg: null,
+    modalImg: [],
   };
+
+  static propTypes = { onSubmit: PropTypes.func };
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.imageName !== this.state.imageName) {
@@ -24,6 +27,12 @@ class App extends Component {
     }
     if (prevState.page !== this.state.page) {
       this.searchImages();
+    }
+    if (prevState.images !== this.state.images) {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth',
+      });
     }
   }
 
@@ -62,47 +71,35 @@ class App extends Component {
     this.setState({ imageName: image });
   };
 
-  findBigImage = e => {
-    const bigImage = this.state.images.find(el => el.id === this.state.bigImg);
-    return bigImage;
-  };
-  openModal = evt => {
-    this.setState({
-      isOpen: true,
-      bigImg: Number(evt.currentTarget.id),
-    });
-  };
+  toggleModal = () => this.setState({ isOpen: !this.state.isOpen });
 
-  closeModal = () => this.setState({ isOpen: false });
+  findModalImage = id => {
+    this.setState(prevState => ({
+      modalImg: prevState.images.filter(image => image.id === id),
+      isOpen: !this.state.isOpen,
+    }));
+  };
 
   render() {
-    const { images, isLoading, isOpen, bigImg } = this.state;
+    const { images, isLoading, isOpen, modalImg } = this.state;
     return (
       <div className="App">
         <Searchbar onSubmit={this.handleForm} />
-        {isLoading && (
-          <Loader
-            type="Puff"
-            color="#00BFFF"
-            height={100}
-            width={100}
-            timeout={3000} //3 secs
-          />
-        )}
-        {images.length > 0 ? (
-          <ImageGallery images={images} openModal={this.openModal} />
-        ) : (
-          <h2 className="title-bar">
-            Please, enter something in the search bar
-          </h2>
+        {images.length > 0 && (
+          <ImageGallery images={images} find={this.findModalImage} />
         )}
         {images.length > 10 && <Button onClick={this.loadMore} />}
-        {isOpen && (
-          <Modal
-            imageId={bigImg}
-            onClose={this.closeModal}
-            find={this.findBigImage}
-          />
+        {isOpen && <Modal photo={modalImg[0]} toggleModal={this.toggleModal} />}
+        {isLoading && (
+          <div className="loader">
+            <Loader
+              type="Puff"
+              color="#00BFFF"
+              height={100}
+              width={100}
+              timeout={3000} //3 secs
+            />
+          </div>
         )}
       </div>
     );
