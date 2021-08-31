@@ -237,3 +237,7 @@ img {
 .text {
   color: blue;
 }
+.error {
+  text-align: center;
+  color: red;
+}

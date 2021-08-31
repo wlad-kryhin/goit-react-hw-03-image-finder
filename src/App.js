@@ -6,6 +6,9 @@ import Button from './components/Button/Button';
 import Loader from 'react-loader-spinner';
 import Modal from './components/Modal/Modal';
 import PropTypes from 'prop-types';
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const KEY = '22313175-89def84c9551dc3c20db3bc15';
 
 class App extends Component {
@@ -38,7 +41,7 @@ class App extends Component {
 
   searchImages = () => {
     const { imageName, page } = this.state;
-    this.setState({ isLoading: true });
+    this.setState({ isLoading: true, error: '' });
     setTimeout(() => {
       fetch(
         `https://pixabay.com/api/?q=${imageName}&page=${page}&key=${KEY}&image_type=photo&orientation=horizontal&per_page=12`,
@@ -50,12 +53,17 @@ class App extends Component {
 
           return Promise.reject(
             this.setState({
-              error: new Error(`нету такой дичи с именем ${imageName}`),
+              error: new Error(`Запрос с именем ${imageName} не найдет `),
             }),
           );
         })
         .then(data => data.hits)
         .then(images => {
+          if (images.length === 0) {
+            return this.setState({
+              error: 'Nothing found, please enter a correct keyword!',
+            });
+          }
           this.setState(prevState => ({
             images: [...prevState.images, ...images],
           }));
@@ -82,15 +90,40 @@ class App extends Component {
     }));
   };
 
+  toastError = () =>
+    toast.error('Nothing found, please enter a correct keyword!', {
+      position: 'top-right',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+
   render() {
     const { images, isLoading, isOpen, modalImg, error } = this.state;
     return (
       <div className="App">
-        <Searchbar onSubmit={this.handleForm} />
+        <Searchbar onSubmit={this.handleForm} toast={this.toastError} />
         {images.length > 0 && (
           <ImageGallery images={images} find={this.findModalImage} />
         )}
-        {error && <p>{error}</p>}
+        {error && (
+          <ToastContainer
+            position="top-right"
+            autoClose={2500}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            theme={'colored'}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+        )}
+        {/* {error && <h3 className="error">{error}</h3>} */}
         {images.length > 10 && <Button onClick={this.loadMore} />}
         {isOpen && <Modal photo={modalImg[0]} toggleModal={this.toggleModal} />}
         {isLoading && (
