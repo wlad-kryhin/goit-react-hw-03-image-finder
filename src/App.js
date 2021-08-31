@@ -49,7 +49,9 @@ class App extends Component {
           }
 
           return Promise.reject(
-            new Error(`нету такой дичи с именем ${imageName}`),
+            this.setState({
+              error: new Error(`нету такой дичи с именем ${imageName}`),
+            }),
           );
         })
         .then(data => data.hits)
@@ -81,13 +83,14 @@ class App extends Component {
   };
 
   render() {
-    const { images, isLoading, isOpen, modalImg } = this.state;
+    const { images, isLoading, isOpen, modalImg, error } = this.state;
     return (
       <div className="App">
         <Searchbar onSubmit={this.handleForm} />
         {images.length > 0 && (
           <ImageGallery images={images} find={this.findModalImage} />
         )}
+        {error && <p>{error}</p>}
         {images.length > 10 && <Button onClick={this.loadMore} />}
         {isOpen && <Modal photo={modalImg[0]} toggleModal={this.toggleModal} />}
         {isLoading && (
