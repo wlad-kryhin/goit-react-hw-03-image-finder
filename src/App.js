@@ -17,7 +17,6 @@ class App extends Component {
     images: [],
     page: 1,
     isLoading: false,
-    error: '',
     modalImg: [],
   };
 
@@ -41,7 +40,7 @@ class App extends Component {
 
   searchImages = () => {
     const { imageName, page } = this.state;
-    this.setState({ isLoading: true, error: '' });
+    this.setState({ isLoading: true });
     setTimeout(() => {
       fetch(
         `https://pixabay.com/api/?q=${imageName}&page=${page}&key=${KEY}&image_type=photo&orientation=horizontal&per_page=12`,
@@ -52,21 +51,30 @@ class App extends Component {
           }
 
           return Promise.reject(
-            new Error(`Запрос с именем ${imageName} не найдет `),
+            new Error(`Запрос с именем ${imageName} не найден `),
           );
         })
         .then(data => data.hits)
         .then(images => {
           if (images.length === 0) {
-            return this.setState({
-              error: 'Nothing found, please enter a correct keyword!',
-            });
+            return toast.error(
+              'Nothing found, please enter a correct keyword!',
+              {
+                position: 'top-right',
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+              },
+            );
           }
           this.setState(prevState => ({
             images: [...prevState.images, ...images],
           }));
         })
-        .catch(error => this.setState({ error }))
+        .catch(error => toast.error(error))
         .finally(() => this.setState({ isLoading: false }));
     }, 1000);
   };
@@ -89,40 +97,14 @@ class App extends Component {
     }));
   };
 
-  toastError = () =>
-    toast.error('Nothing found, please enter a correct keyword!', {
-      position: 'top-right',
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
-
   render() {
-    const { images, isLoading, isOpen, modalImg, error } = this.state;
+    const { images, isLoading, isOpen, modalImg } = this.state;
     return (
       <div className="App">
         <Searchbar onSubmit={this.handleForm} toast={this.toastError} />
         {images.length > 0 && (
           <ImageGallery images={images} find={this.findModalImage} />
         )}
-        {error && (
-          <ToastContainer
-            position="top-right"
-            autoClose={2500}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            theme={'colored'}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
-        )}
-        {/* {error && <h3 className="error">{error}</h3>} */}
         {images.length > 10 && <Button onClick={this.loadMore} />}
         {isOpen && <Modal photo={modalImg[0]} toggleModal={this.toggleModal} />}
         {isLoading && (
@@ -136,6 +118,19 @@ class App extends Component {
             />
           </div>
         )}
+
+        <ToastContainer
+          position="top-right"
+          autoClose={2500}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          theme={'colored'}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </div>
     );
   }

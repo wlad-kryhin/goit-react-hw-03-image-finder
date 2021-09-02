@@ -14,7 +14,6 @@ export default class Searchbar extends Component {
     }
     this.props.onSubmit(this.state.image);
     this.setState({ image: '' });
-    this.props.toast();
   };
   render() {
     return (
