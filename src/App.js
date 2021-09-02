@@ -52,9 +52,7 @@ class App extends Component {
           }
 
           return Promise.reject(
-            this.setState({
-              error: new Error(`Запрос с именем ${imageName} не найдет `),
-            }),
+            new Error(`Запрос с именем ${imageName} не найдет `),
           );
         })
         .then(data => data.hits)
@@ -78,6 +76,7 @@ class App extends Component {
   };
 
   handleForm = image => {
+    this.setState({ page: 1 });
     this.setState({ imageName: image });
   };
 
